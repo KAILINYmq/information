@@ -6,6 +6,7 @@ from flask_wtf import CSRFProtect
 from redis import StrictRedis
 from flask_session import Session  # 可以指定 session 保存的位置
 from config import config
+from info.modules.index import index_blu
 
 """之后所有模板文件都放info文件夹"""
 # 初始化数据库
@@ -41,5 +42,8 @@ def create_app(config_name):
     CSRFProtect(app)
     # 设置session保存指定位置
     Session(app)
+
+    # 注册蓝图
+    app.register_blueprint(index_blu)
 
     return  app
