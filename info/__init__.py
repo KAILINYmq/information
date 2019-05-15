@@ -6,12 +6,12 @@ from flask_wtf import CSRFProtect
 from redis import StrictRedis
 from flask_session import Session  # 可以指定 session 保存的位置
 from config import config
-from info.modules.index import index_blu
 
 """之后所有模板文件都放info文件夹"""
 # 初始化数据库
 db = SQLAlchemy()
 
+redis_store = None  # type: StrictRedis
 
 def setup_log(config_name):
     # 创建日志的记录等级
@@ -25,8 +25,6 @@ def setup_log(config_name):
     # 为全局的日志工具对象 (flask app使用) 添加日志记录器
     logging.getLogger().addHandler(file_log_handler)
 
-
-
 def create_app(config_name):
     # 配置日志,并且传入配置名字， 以便能获取到指定配置对应的日志等级
     setup_log(config_name)
@@ -37,6 +35,7 @@ def create_app(config_name):
     # 通过app初始化db
     db.init_app(app)
     # 初始化 redis 存储对象
+    global redis_store
     redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
     # 开启项目 CSRF 保护, 只做服务器验证功能
     CSRFProtect(app)
@@ -44,6 +43,7 @@ def create_app(config_name):
     Session(app)
 
     # 注册蓝图
+    from info.modules.index import index_blu
     app.register_blueprint(index_blu)
 
     return  app
