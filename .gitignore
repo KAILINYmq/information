@@ -1,3 +1,4 @@
 添加忽略文件
 .idea/
 *.py[cod]
+logs/log*
