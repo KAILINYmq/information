@@ -1,7 +1,7 @@
 from redis import StrictRedis
 
 class Config(object):
-    """项目配置"""
+    """项目配置文件"""
     DEBUG = True
     SECRET_KEY = "DvekNWw/tf8R2I9vfdQJx0HvNhCauYb+hiqv/UI6mEEQ8qfRYx96IQDBX65B9OAM"
 
