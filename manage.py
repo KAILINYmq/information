@@ -4,6 +4,7 @@ from flask import  Flask,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session  # 可以指定 session 保存的位置
 from flask_script import Manager
+from flask_migrate import  Migrate,MigrateCommand
 
 """项目入口文件"""
 class Config(object):
@@ -45,6 +46,10 @@ CSRFProtect(app)
 Session(app)
 
 manager = Manager(app)
+# 将 app 与db 关联
+Migrate(app,db)
+# 将迁移命令添加到manager中
+manager.add_command('db', MigrateCommand)
 
 @app.route('/')
 def index():
