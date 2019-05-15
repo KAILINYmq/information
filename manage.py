@@ -3,6 +3,7 @@ from redis import StrictRedis
 from flask import  Flask,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session  # 可以指定 session 保存的位置
+from flask_script import Manager
 
 """项目入口文件"""
 class Config(object):
@@ -43,10 +44,12 @@ CSRFProtect(app)
 # 设置session保存指定位置
 Session(app)
 
+manager = Manager(app)
+
 @app.route('/')
 def index():
     session["name"] = "kailin"
     return "index"
 
 if __name__ == "__main__":
-    app.run()
+   manager.run()
