@@ -216,11 +216,13 @@ var imageCodeId = ""
 // 生成一个图片验证码的编号，并设置页面中图片验证码img标签的src属性
 function generateImageCode() {
     // 1.浏览器要发起图片验证码请求/image_code?imageCodeId=xxxxx
-    imageCodeId = generateUUID()   // UUID 通用唯一标识码
+    // UUID 通用唯一标识码
+    imageCodeId = generateUUID()
     // 2.生成 url
-    var url = "/image_code?imageCodeId=" + imageCodeId
+    var url = "/passport/image_code?imageCodeId=" + imageCodeId
     // 3.给指定img标签设置src,设置了地址之后，img标签就会去向这个地址发起请求，请求图片
-    $(".get_pic_code").attr("src", url)     // 将url获取图片地址填入Image标签
+    // 将url获取图片地址填入Image标签
+    $(".get_pic_code").attr("src", url)
 }
 
 // 发送短信验证码
