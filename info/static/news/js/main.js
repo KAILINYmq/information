@@ -123,7 +123,7 @@ $(function(){
             "mobile": mobile,
             "passport": passport
         }
-        
+
         $.ajax({
             url: "/passport/login",
             type: "post",
