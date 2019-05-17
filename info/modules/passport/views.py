@@ -1,5 +1,4 @@
 from datetime import datetime
-
 import random
 import re
 from flask import request, abort, current_app, make_response, session
@@ -10,6 +9,44 @@ from info.models import User
 from info.untils.response_code import RET
 from . import passport_blu
 from info.untils.captcha.captcha import captcha
+
+@passport_blu.route('/login', methods=["POST"])
+def login():
+    """登陆"""
+    # 1.获取参数
+    params_dict = request.json
+    mobile = params_dict.get("mobile")
+    passport = params_dict.get("passport")
+
+    #  2.校验参数
+    if not all([mobile, passport]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误！")
+    # 校验手机号
+    if not re.match('1[]35678]\\d{9}', mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机格式正确")
+
+    #  3.校验密码是否正确
+    # 判断是否有手机号
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询数据错误！")
+    # 查询用户是否存在
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg="用户不存在！")
+
+    # 校验当前密码手否一致
+    if not user.check_password(passport):
+        return jsonify(errno=RET.PWDERR, errmsg="用户名或密码错误！")
+
+    #  4.保存用户状态
+    session["user_id"] = user.id
+    session["mobile"] = user.mobile
+    session["nick_name"] = user.nick_name
+
+    #  5.响应
+    return jsonify(errno=RET.OK, errmsg="登录成功")
 
 
 @passport_blu.route('/register', methods=["POST"])
@@ -48,7 +85,6 @@ def register():
     user.nick_name = mobile  # 暂时没有昵称用手机号代替
     user.last_login = datetime.now()  # 记录最后一次登录时间
     # TODO 对密码处理
-
 
     #  6. 将 User 模型添加到数据库
     try:

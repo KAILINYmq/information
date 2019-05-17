@@ -55,6 +55,9 @@ class User(BaseModel, db.Model):
                                 backref=db.backref('followed', lazy='dynamic'),
                                 lazy='dynamic')
 
+    def check_password(self, password):
+        """校验密码"""
+        return check_password_hash(self.password_hash, password)
 
     #  当前用户所发布的新闻
     news_list = db.relationship('News', backref='user', lazy='dynamic')
