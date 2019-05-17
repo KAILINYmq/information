@@ -186,8 +186,9 @@ $(function(){
             "password": password
         }
 
+		// 发起注册请求
         $.ajax({
-            url: "/passport/register",
+            url: "/passport/sms_code",
             type: "post",
             contentType: "application/json",
             data: JSON.stringify(params),
@@ -257,7 +258,7 @@ function sendSMSCode() {
         url: "/passport/sms_code",
         // 请求方式
         type: "post",
-        // 请求参数
+        // 请求参数  对象转字符串
         data: JSON.stringify(params),
         headers: {
             "X-CSRFToken": getCookie('csrf_token')
@@ -265,8 +266,9 @@ function sendSMSCode() {
         // 请求参数的数据类型
         contentType: "application/json",
         success: function (response) {
+            // 前端发请求 后端给前端响应请求
             if (response.errno == "0") {
-                // 代表发送成功
+                // 代表发送成功  然后实现倒计时
                 var num = 60
                 var t = setInterval(function () {
 

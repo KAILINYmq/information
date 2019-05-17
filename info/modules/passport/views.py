@@ -1,4 +1,4 @@
-from random import random
+import random
 import re
 from flask import request, abort, current_app, make_response
 from flask.json import jsonify
@@ -8,7 +8,7 @@ from info.untils.response_code import RET
 from . import passport_blu
 from info.untils.captcha.captcha import captcha
 
-@passport_blu.route('/ sms_code',methods=['POST'])
+@passport_blu.route('/sms_code',methods=['POST'])
 def send_sms_code():
     """发送短信逻辑"""
     # 1. 获取参数: 手机号， 图片验证码内容， 图片验证码的编号（随机值）
