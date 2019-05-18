@@ -69,6 +69,7 @@ function updateNewsData() {
         "cid": currentCid,
         "page": cur_page
     }
+    // 用get发送请求
     $.get("/news_list", params, function (resp) {
         // 数据加载完毕，设置【正在加载数据】的变量为 false 代表当前没有在加载数据
         data_querying = false
@@ -80,11 +81,9 @@ function updateNewsData() {
             if (cur_page == 1) {
                 $(".list_con").html("")
             }
-
             // 添加请求成功之后返回的数据
-
             // 显示数据
-            for (var i=0;i<resp.data.news_dict_li.length;i++) {
+            for (var i=0; i<resp.data.news_dict_li.length; i++) {
                 var news = resp.data.news_dict_li[i]
                 var content = '<li>'
                 content += '<a href="/news/' + news.id + '" class="news_pic fl"><img src="' + news.index_image_url + '?imageView2/1/w/170/h/170"></a>'
