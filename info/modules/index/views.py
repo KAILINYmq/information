@@ -1,6 +1,56 @@
-from flask import render_template, current_app, session
+from flask import render_template, current_app, session, request
+from flask.json import jsonify
+from info import constants
 from info.models import User, News
+from info.untils.response_code import RET
 from . import index_blu
+
+@index_blu.route('/news_list')
+def news_list():
+    """获取首页新闻"""
+    # 1. 获取参数
+    cid = request.args.get("cid", "1")
+    page = request.args.get("page", "1")
+    per_page = request.args.get("per_page", "10")
+
+    # 2.检验参数
+    try:
+        cid = int(cid)
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR,errmsg="新闻查询参数错误！")
+
+    # 3.查询数据
+    filters = []
+    if cid != 1:  # 查询的不是最新数据
+        # 需要添加条件
+        filters.append(News.category_id == cid)
+    # TODO 有疑问！
+    try:
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page, False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询错误")
+
+    # 取到当前页数据
+    news_model_list = paginate.items    # 模型对象列表
+    total_page = paginate.pages   # 总页数
+    current_page = paginate.page  # 当前页数
+    # 将模型对象列表转换成字典列表
+    news_dict_li = []
+    for news in news_model_list:
+        news_dict_li.append(news.to_basic_dict())
+
+    data = {
+        "total_page": total_page,
+        "current_page": current_page,
+        "news_dict_li": news_dict_li
+    }
+
+    return jsonify(errno=RET.OK, errmsg="OK", data=data)
+
 
 @index_blu.route('/')
 def index():
@@ -18,7 +68,7 @@ def index():
     # 右侧的新闻排行逻辑
     news_list = []
     try:
-        news_list = News.query.order_by(News.clicks.desc()).limit(6)
+        news_list = News.query.order_by(News.clicks.desc()).limit(constants.CLICK_RANK_MAX_NEWS)
     except Exception as e:
         current_app.logger.error(e)
 
