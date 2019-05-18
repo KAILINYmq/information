@@ -10,6 +10,7 @@ from info.untils.response_code import RET
 from . import passport_blu
 from info.untils.captcha.captcha import captcha
 
+
 @passport_blu.route('/login', methods=["POST"])
 def login():
     """登陆"""
@@ -37,7 +38,7 @@ def login():
         return jsonify(errno=RET.NODATA, errmsg="用户不存在！")
 
     # 校验当前密码手否一致
-    if not user.check_password(passport):
+    if user.check_password(passport):
         return jsonify(errno=RET.PWDERR, errmsg="用户名或密码错误！")
 
     #  4.保存用户状态
@@ -70,21 +71,23 @@ def register():
         real_sms_code = redis_store.get("SMS_" + mobile)
     except Exception as e:
         current_app.logger.error(e)
-        return  jsonify(errno=RET.DBERR, errmsg="数据查询失败")
+        return jsonify(errno=RET.DBERR, errmsg="数据查询失败")
 
     if not real_sms_code:
-        return  jsonify(errno=RET.NODATA, errmsg="验证码已过期")
+        return jsonify(errno=RET.NODATA, errmsg="验证码已过期")
 
     # 4. 校验用户输入的短信验证码内容和真实验证码的内容是否一致
     if real_sms_code != smscode:
-        return  jsonify(errno=RET.DATAERR, errmsg="验证码输入错误")
+        return jsonify(errno=RET.DATAERR, errmsg="验证码输入错误")
 
     # 5. 如果一致, 初始化User模型 并且赋值属性
     user = User()
     user.mobile = mobile
     user.nick_name = mobile  # 暂时没有昵称用手机号代替
     user.last_login = datetime.now()  # 记录最后一次登录时间
-    # TODO 对密码处理
+    # 对密码处理
+    # 需求： 在设置 password 的时候， 去对 password 进行加密， 并且将加密结果给 user.password_hash 赋值
+    user.password = password
 
     #  6. 将 User 模型添加到数据库
     try:
@@ -105,6 +108,7 @@ def register():
 
 @passport_blu.route('/sms_code',methods=['POST'])
 def send_sms_code():
+    return jsonify(error=RET.OK, errmsg="发送成功")
     """发送短信逻辑"""
     # 1. 获取参数: 手机号， 图片验证码内容， 图片验证码的编号（随机值）
     # params_dict = json.loads(request.data)

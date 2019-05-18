@@ -136,7 +136,7 @@ $(function(){
             success: function (resp) {
                 if (resp.errno == "0") {
                     // 代表登录成功
-                    location.reload()
+                    location.reload()  // 定位到当前界面
                 }else {
                     alert(resp.errmsg)
                     $("#login-password-err").html(resp.errmsg)
@@ -188,7 +188,7 @@ $(function(){
 
 		// 发起注册请求
         $.ajax({
-            url: "/passport/sms_code",
+            url: "/passport/register",
             type: "post",
             contentType: "application/json",
             data: JSON.stringify(params),
@@ -258,16 +258,16 @@ function sendSMSCode() {
         url: "/passport/sms_code",
         // 请求方式
         type: "post",
-        // 请求参数  对象转字符串
-        data: JSON.stringify(params),
-        headers: {
-            "X-CSRFToken": getCookie('csrf_token')
-        },
+        // headers: {
+        //     "X-CSRFToken": getCookie('csrf_token')
+        // },
         // 请求参数的数据类型
         contentType: "application/json",
+        // 请求参数  对象转字符串
+        data: JSON.stringify(params),
         success: function (response) {
             // 前端发请求 后端给前端响应请求
-            if (response.errno == "0") {
+            if (response.error == "0") {
                 // 代表发送成功  然后实现倒计时
                 var num = 60
                 var t = setInterval(function () {
