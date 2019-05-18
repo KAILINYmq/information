@@ -5,5 +5,8 @@ from flask import render_template
 def news_detail(news_id):
      """新闻详情"""
 
+     data={
 
-     return render_template("news/detail.html")
+     }
+
+     return render_template("news/detail.html", data=data)
