@@ -86,7 +86,7 @@ function updateNewsData() {
                 var news = resp.data.news_dict_li[i]
                 var content = '<li>'
                 // <img src="' + news.index_image_url + '?imageView2/1/w/170/h/170">
-                content += '<a href="/news/' + news.id + '" class="news_pic fl"><img src="../images/news_pic.jpg", alt="图片已离家出走!"></a>'
+                content += '<a href="/news/' + news.id + '" class="news_pic fl"><img src="' + news.index_image_url + '?imageView2/1/w/170/h/170", alt="图片已离家出走!"></a>'
                 content += '<a href="/news/' + news.id + '" class="news_title fl">' + news.title + '</a>'
                 content += '<a href="/news/' + news.id + '" class="news_detail fl">' + news.digest + '</a>'
                 content += '<div class="author_info fl">'
