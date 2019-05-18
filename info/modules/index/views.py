@@ -85,7 +85,7 @@ def index():
 
     data = {
         "user": user.to_dict() if user else None,    # 如果user有值执行user.to_dcit() 否则为None
-        "news_dict_li": news_dict_li,                # 获取主页新闻数据
+        "news_dict_li": news_dict_li,                # 获取右侧新闻数据
         "category_li": category_li                   # 获取分类数据
     }
 
