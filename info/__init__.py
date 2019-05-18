@@ -3,6 +3,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from redis import StrictRedis
 from flask_session import Session  # 可以指定 session 保存的位置
 from config import config
@@ -38,9 +39,19 @@ def create_app(config_name):
     global redis_store
     redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT, decode_responses=True)  # decode_responses=True 设置自动解码
     # 开启项目 CSRF 保护, 只做服务器验证功能
-    # CSRFProtect(app)
-    # 设置session保存指定位置
+    CSRFProtect(app)
+    # 设置session保存指定位置 默认帮我们做了cookie中取出随机值，从表单中取出随机，然后校验，并响应校验结果
+    # 我们需要做： 1. 在界面加载时， 往cookie中添加一个csrf_token，2.并且在表单中添加一个隐藏的csrf_token
     Session(app)
+
+    # 请求钩子
+    @app.after_request
+    def after_request(response):
+        # 生成随机的csrf_token的值
+        csrf_token = generate_csrf()
+        # 设置一个cookie
+        response.set_cookie("csrf_token", csrf_token)
+        return response
 
     # 注册蓝图
     from info.modules.index import index_blu
@@ -48,4 +59,4 @@ def create_app(config_name):
     from info.modules.passport import passport_blu
     app.register_blueprint(passport_blu)
 
-    return  app
+    return app
