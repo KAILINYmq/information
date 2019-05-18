@@ -10,7 +10,7 @@ $(function () {
 
     // 首页分类切换
     $('.menu li').click(function () {
-        // 取到指定分类的cid
+        // 1. 取到指定分类的cid
         var clickCid = $(this).attr('data-cid')
         // 遍历所有的 li 移除身上的选中效果
         $('.menu li').each(function () {
@@ -18,7 +18,7 @@ $(function () {
         })
         // 给当前分类添加选中的状态
         $(this).addClass('active')
-        // 如果点击的分类与当前分类不一致
+        // 2. 如果点击的分类与当前分类不一致
         if (clickCid != currentCid) {
             // 记录当前分类id
             currentCid = clickCid
@@ -46,8 +46,8 @@ $(function () {
         var nowScroll = $(document).scrollTop();
 
         if ((canScrollHeight - nowScroll) < 100) {
+            // 可以滚动高度减去当前高度小于100代表滚动到底部
             // 判断页数，去更新新闻数据
-
             if (!data_querying) {
                 data_querying = true
 
@@ -57,7 +57,6 @@ $(function () {
                     // 去加载数据
                     updateNewsData()
                 }
-
             }
         }
     })
@@ -86,7 +85,8 @@ function updateNewsData() {
             for (var i=0; i<resp.data.news_dict_li.length; i++) {
                 var news = resp.data.news_dict_li[i]
                 var content = '<li>'
-                content += '<a href="/news/' + news.id + '" class="news_pic fl"><img src="' + news.index_image_url + '?imageView2/1/w/170/h/170"></a>'
+                // <img src="' + news.index_image_url + '?imageView2/1/w/170/h/170">
+                content += '<a href="/news/' + news.id + '" class="news_pic fl"><img src="../images/news_pic.jpg", alt="图片已离家出走!"></a>'
                 content += '<a href="/news/' + news.id + '" class="news_title fl">' + news.title + '</a>'
                 content += '<a href="/news/' + news.id + '" class="news_detail fl">' + news.digest + '</a>'
                 content += '<div class="author_info fl">'
