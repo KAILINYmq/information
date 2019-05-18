@@ -7,6 +7,7 @@ from flask_wtf.csrf import generate_csrf
 from redis import StrictRedis
 from flask_session import Session  # 可以指定 session 保存的位置
 from config import config
+from info.untils.common import do_index_class
 
 """之后所有模板文件都放info文件夹"""
 # 初始化数据库
@@ -43,6 +44,8 @@ def create_app(config_name):
     # 设置session保存指定位置 默认帮我们做了cookie中取出随机值，从表单中取出随机，然后校验，并响应校验结果
     # 我们需要做： 1. 在界面加载时， 往cookie中添加一个csrf_token，2.并且在表单中添加一个隐藏的csrf_token
     Session(app)
+
+    app.add_template_filter(do_index_class, "indexClass")  # 添加自定义过滤器
 
     # 请求钩子
     @app.after_request

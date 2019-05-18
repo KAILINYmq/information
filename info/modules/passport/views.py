@@ -125,7 +125,6 @@ def register():
 
 @passport_blu.route('/sms_code',methods=['POST'])
 def send_sms_code():
-    return jsonify(error=RET.OK, errmsg="发送成功")
     """发送短信逻辑"""
     # 1. 获取参数: 手机号， 图片验证码内容， 图片验证码的编号（随机值）
     # params_dict = json.loads(request.data)
