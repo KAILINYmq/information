@@ -293,11 +293,10 @@ function sendSMSCode() {
                 $(".get_code").attr("onclick", "sendSMSCode();");
             }
         }
-
     })
-
 }
 
+// 退出逻辑
 function logout() {
     $.get('/passport/logout', function (resp) {
         location.reload()

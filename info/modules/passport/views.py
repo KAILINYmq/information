@@ -10,6 +10,14 @@ from info.untils.response_code import RET
 from . import passport_blu
 from info.untils.captcha.captcha import captcha
 
+@passport_blu.route('/logout')
+def logout():
+    """退出登陆"""
+    # pop移除session中的数据
+    session.pop('user_id', None)
+    session.pop('mobile', None)
+    session.pop('nick_name', None)
+    return jsonify(errno=RET.OK, errmsg="退出成功")
 
 @passport_blu.route('/login', methods=["POST"])
 def login():
