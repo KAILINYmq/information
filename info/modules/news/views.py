@@ -36,10 +36,14 @@ def news_detail(news_id):
      # 更新新闻点击次数
      news.clicks +=1
 
+     # 判断用户是否收藏
+     is_collected = False
+
      data={
          "user": user.to_dict() if user else None,  # 如果user有值执行user.to_dcit() 否则为None
          "news_dict_li": news_dict_li,              # 获取主页新闻数据
-         "news": news.to_dict()                    # 新闻详情页数据
+         "news": news.to_dict()                     # 新闻详情页数据
+         "is_collected": is_collected               # 判断用户是否收藏
      }
 
      return render_template("news/detail.html", data=data)
