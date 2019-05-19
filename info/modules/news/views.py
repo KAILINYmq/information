@@ -52,7 +52,7 @@ def comment_news():
         db.session.rollback()
         current_app.logger.error(e)
 
-    return jsonify(errno=RET.OK, errmsg="OK", comment=comment.to_dict())
+    return jsonify(errno=RET.OK, errmsg="OK", data=comment.to_dict())
 
 
 @news_blu.route("/news_collect", methods=["POST"])

@@ -73,6 +73,7 @@ $(function(){
 
     // 评论提交
     $(".comment_form").submit(function (e) {
+        // 阻止默认提交
         e.preventDefault();
         var news_id = $(this).attr('data-newsid')
         var news_comment = $(".comment_input").val();
