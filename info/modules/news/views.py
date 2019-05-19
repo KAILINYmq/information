@@ -1,10 +1,70 @@
 from flask.json import jsonify
 from info import constants, db
-from info.models import News, Comment
+from info.models import News, Comment, CommentLike
 from info.modules.news import news_blu
 from flask import render_template, current_app, session, g, abort, request
 from info.untils.common import user_login_data
 from info.untils.response_code import RET
+
+
+@news_blu.route('/comment_like', methods=["POST"])
+@user_login_data
+def comment_like():
+    """点赞功能"""
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg="用户未登陆")
+    # 1.取到请求参数
+    news_id = request.json.get("news_id")
+    comment_id = request.json.get("comment_id")
+    action = request.json.get("action")
+    # 2.校验参数
+    if not all([news_id, comment_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    if action not in ["add", "remove"]:
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    try:
+        news_id = int(news_id)
+        comment_id = int(comment_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(error=RET.PARAMERR, errmsg="参数错误")
+
+    try:
+        comment = Comment.query.get(comment_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询错误")
+
+    if not comment:
+        return jsonify(errno=RET.NODATA, errmsg="评论不存在")
+
+    if action == "add":
+        # 点赞评论
+        comment_like_model = CommentLike.query.filter(CommentLike.user_id == user.id, CommentLike.comment_id == comment.id).first()
+        if not comment_like_model:
+            comment_like_model = CommentLike()
+            comment_like_model.user_id = user.id
+            comment_like_model.comment_id = comment_id
+            db.session.add(comment_like_model)
+    else:
+        # 取消点赞
+        comment_like_model = CommentLike.query.filter(CommentLike.user_id == user.id, CommentLike.comment_id == comment.id).first()
+        if comment_like_model:
+            comment_like_model.delete()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库操作失败")
+
+    return jsonify(errno=RET.OK, errmsg="OK")
+
+
+
 
 @news_blu.route("/news_comment", methods=["POST"])
 @user_login_data

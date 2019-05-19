@@ -208,7 +208,7 @@ $(function(){
                 }
             })
         }
-
+        // 回复子评论
         if(sHandler.indexOf('reply_sub')>=0)
         {
             var $this = $(this)
@@ -351,6 +351,7 @@ $(function(){
     })
 })
 
+// 显示多少条评论数量
 function updateCommentCount() {
     var count = $(".comment_list").length
     $(".comment_count").html(count+"条评论")
