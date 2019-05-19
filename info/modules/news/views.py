@@ -137,11 +137,25 @@ def news_detail(news_id):
          if news in user.collection_news:
              is_collected = True
 
+     # 查询评论数据
+     comments = []
+     try:
+         # 获取评论通过时间排序
+         comments = Comment.query.filter(Comment.news_id == news_id).order_by(Comment.create_time.desc()).all()
+     except Exception as e:
+        current_app.logger.error(e)
+
+     comment_dict_li = []
+     for comment in comments:
+         comment_dect = comment.to_dict()
+         comment_dict_li.append(comment_dect)
+
      data={
          "user": user.to_dict() if user else None,  # 如果user有值执行user.to_dcit() 否则为None
          "news_dict_li": news_dict_li,              # 获取主页新闻数据
          "news": news.to_dict(),                    # 新闻详情页数据
-         "is_collected": is_collected               # 判断用户是否收藏
+         "is_collected": is_collected,              # 判断用户是否收藏
+         "comments": comment_dict_li                # 新闻评论返回
      }
 
      return render_template("news/detail.html", data=data)
