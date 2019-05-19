@@ -159,7 +159,7 @@ def collect_news():
 @news_blu.route('/<int:news_id>')
 @user_login_data
 def news_detail(news_id):
-     """新闻详情"""
+     """新闻详情(页面数据初始化)"""
      #  1.如果用户登陆，将当前登陆用户的数据传到模板，供模板显示(装饰器方式获取)
      user = g.user
 
@@ -203,10 +203,29 @@ def news_detail(news_id):
      except Exception as e:
         current_app.logger.error(e)
 
+     comment_like_ids = []
+     if g.user:
+         try:
+             # 查询用户点赞数据
+             # TODO 有疑问
+             # 1. 查询当前新闻所有评论 取到所有评论id
+             comment_ids = [comment.id for comment in comments]   # 列表推导式
+             # 2. 再查询当前评论中哪些被当前用户点赞
+             comment_likes = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),CommentLike.user_id == g.user.id ).all()
+             # 3. 取到所有被点赞的评论id
+             comment_like_ids = [comment_like.comment_id for comment_like in comment_likes ]
+         except Exception as e:
+             current_app.logger.error(e)
+
      comment_dict_li = []
      for comment in comments:
-         comment_dect = comment.to_dict()
-         comment_dict_li.append(comment_dect)
+         comment_dict = comment.to_dict()
+         # 初始化点赞
+         comment_dict["is_like"] = False
+         # 判断当前遍历到的评论是否被当前用户点赞
+         if comment.id in comment_like_ids:
+             comment_dict["is_like"] = True
+         comment_dict_li.append(comment_dict)
 
      data={
          "user": user.to_dict() if user else None,  # 如果user有值执行user.to_dcit() 否则为None
