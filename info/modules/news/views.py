@@ -50,7 +50,7 @@ def collect_news():
 
     return jsonify(errno=RET.OK, errmsg="操作成功")
 
-@news_blu.route('/<int:news_id>' )
+@news_blu.route('/<int:news_id>')
 @user_login_data
 def news_detail(news_id):
      """新闻详情"""
