@@ -16,6 +16,7 @@ def do_index_class(index):
 
 def user_login_data(news_detail):
     """装饰器获取用户是否登陆"""
+    # 使用@functools.wraps去装饰内层函数，可以防止当前装饰器修改内层函数__name__的值不变
     @functools.wraps(news_detail)
     def wrapper(*args, **kwargs):
 
