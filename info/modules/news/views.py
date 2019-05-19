@@ -1,21 +1,16 @@
 from info import constants
-from info.models import News, User
+from info.models import News
 from info.modules.news import news_blu
-from flask import render_template, current_app, session
+from flask import render_template, current_app, session, g
+from info.untils.common import user_login_data
 
 
 @news_blu.route('/<int:news_id>')
+@user_login_data
 def news_detail(news_id):
      """新闻详情"""
-     # 1. 如果用户登陆，将当前登陆用户的数据传到模板，供模板显示
-     user_id = session.get("user_id", None)
-     user = None
-     if user_id:
-         # 尝试查询用户的模型
-         try:
-             user = User.query.get(user_id)
-         except Exception as e:
-             current_app.logger.error(e)
+     #  1.如果用户登陆，将当前登陆用户的数据传到模板，供模板显示(装饰器方式获取)
+     user = g.user
 
      # 右侧的新闻排行逻辑
      news_list = []
