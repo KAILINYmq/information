@@ -151,6 +151,7 @@ $(function(){
             $(this).parent().toggle();
         }
 
+//      点赞
         if(sHandler.indexOf('comment_up')>=0)
         {
             var $this = $(this);
@@ -161,7 +162,6 @@ $(function(){
                 // 如果当前该评论已经是点赞状态，再次点击会进行到此代码块内，代表要取消点赞
                 action = "remove"
             }
-
             var comment_id = $(this).attr("data-commentid")
             var params = {
                 "comment_id": comment_id,

@@ -15,18 +15,16 @@ def comment_like():
     if not user:
         return jsonify(errno=RET.SESSIONERR, errmsg="用户未登陆")
     # 1.取到请求参数
-    news_id = request.json.get("news_id")
     comment_id = request.json.get("comment_id")
     action = request.json.get("action")
     # 2.校验参数
-    if not all([news_id, comment_id, action]):
+    if not all([comment_id, action]):
         return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
 
     if action not in ["add", "remove"]:
         return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
 
     try:
-        news_id = int(news_id)
         comment_id = int(comment_id)
     except Exception as e:
         current_app.logger.error(e)
@@ -48,12 +46,14 @@ def comment_like():
             comment_like_model = CommentLike()
             comment_like_model.user_id = user.id
             comment_like_model.comment_id = comment_id
+            comment.like_count += 1
             db.session.add(comment_like_model)
     else:
         # 取消点赞
         comment_like_model = CommentLike.query.filter(CommentLike.user_id == user.id, CommentLike.comment_id == comment.id).first()
         if comment_like_model:
-            comment_like_model.delete()
+            db.session.delete(comment_like_model)
+            comment.like_count -= 1
     try:
         db.session.commit()
     except Exception as e:
@@ -62,8 +62,6 @@ def comment_like():
         return jsonify(errno=RET.DBERR, errmsg="数据库操作失败")
 
     return jsonify(errno=RET.OK, errmsg="OK")
-
-
 
 
 @news_blu.route("/news_comment", methods=["POST"])
