@@ -7,7 +7,6 @@ function getCookie(name) {
 $(function () {
     $(".pass_info").submit(function (e) {
         e.preventDefault();
-
         // 修改密码
         var params = {};
         // 取到当前表单所需要提交的参数，name 有值的input标签

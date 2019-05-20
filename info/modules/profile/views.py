@@ -7,6 +7,33 @@ from info.untils.image_storage import storage
 from info.untils.response_code import RET
 
 
+@profile_blu.route('/pass_info', methods=["GET", "POST"])
+@user_login_data
+def pass_info():
+    """修改密码模板"""
+    # 显示界面
+    if request.method == "GET":
+        return render_template('news/user_pass_info.html')
+
+    # 提交数据（修改密码）
+    # 1.获取参数
+    old_password = request.json.get("old_password")
+    new_password = request.json.get("new_password")
+    # 2.检验参数
+    if not all([old_password, new_password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+    # 3.校验旧密码
+    user = g.user
+    if not user.check_password(old_password):
+        return jsonify(errno=RET.PWDERR, errmsg="原密码错误")
+
+    # 4.设置新密码
+    user.password = new_password
+
+    return jsonify(erno=RET.OK, errmsg="保存成功")
+
+
+
 @profile_blu.route('/news_list')
 @user_login_data
 def user_news_list():
