@@ -1,9 +1,30 @@
 from flask import render_template, g, redirect, request, jsonify, current_app
 from info import constants
+from info.models import Category
 from info.modules.profile import profile_blu
 from info.untils.common import user_login_data
 from info.untils.image_storage import storage
 from info.untils.response_code import RET
+
+
+@profile_blu.route('/news_release')
+def news_release():
+    """新闻发布模块"""
+    # 1. 加载新闻分类数据
+    categories = []
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+
+    categories_dict_li = []
+    for category in categories:
+        categories_dict_li.append(category.to_dict())
+    # 删除为  最新 分类的数据
+    categories_dict_li.pop(0)
+
+    return render_template('news/user_news_release.html', data={"categories": categories_dict_li})
+
 
 @profile_blu.route('/pic_info', methods=["GET","POST"])
 @user_login_data
