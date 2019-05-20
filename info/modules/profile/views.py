@@ -7,6 +7,48 @@ from info.untils.image_storage import storage
 from info.untils.response_code import RET
 
 
+@profile_blu.route('/collection')
+@user_login_data
+def user_collection():
+    """收藏模块"""
+    # 1.获取参数(默认页数)
+    page = request.args.get("p", 1)
+
+    # 2.判断参数
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    # 查询用户指定页数的收藏的新闻
+    user = g.user
+
+    news_list = []
+    total_page = 1
+    current_page = 1
+    try:
+        # TODO 有疑问
+        paginate = user.collection_news.paginate(page, constants.USER_COLLECTION_MAX_NEWS, False)
+        news_list = paginate.items
+        total_page = paginate.pages
+        current_page = paginate.page
+    except Exception as e:
+        current_app.logger.error(e)
+
+    news_dict_li = []
+    for news in news_list:
+        news_dict_li.append(news.to_basic_dict())
+
+    data ={
+        "total_page": total_page,
+        "current_page": current_page,
+        "collections": news_dict_li
+    }
+
+    return render_template('news/user_collection.html', data=data)
+
+
 @profile_blu.route('/pass_info', methods=["GET", "POST"])
 @user_login_data
 def pass_info():
@@ -38,7 +80,7 @@ def pass_info():
 @user_login_data
 def user_news_list():
     """新闻发布审核列表"""
-    # 1.获取参数
+    # 1.获取参数(默认页数)
     page = request.args.get("p", 1)
     # 2.参数判断
     try:

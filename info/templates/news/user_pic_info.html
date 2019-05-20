@@ -14,7 +14,7 @@
         <h3>头像设置</h3>
         <div class="form-group">
             <label class="label01">当前图像：</label>
-            <img src={% if data.user.avator_url %}
+            <img src={% if data.user.avatar_url %}
                          {{ data.user.avatar_url }}
                      {% else %}
                          "../../static/news/images/user_pic.png"
