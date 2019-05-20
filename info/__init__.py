@@ -8,6 +8,7 @@ from redis import StrictRedis
 from flask_session import Session  # 可以指定 session 保存的位置
 from config import config
 
+
 """之后所有模板文件都放info文件夹"""
 # 初始化数据库
 db = SQLAlchemy()
@@ -63,5 +64,7 @@ def create_app(config_name):
     app.register_blueprint(passport_blu)
     from info.modules.news import news_blu
     app.register_blueprint(news_blu)
+    from info.modules.profile import profile_blu
+    app.register_blueprint(profile_blu)
 
     return app
