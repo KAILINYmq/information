@@ -7,7 +7,6 @@ function getCookie(name) {
 $(function () {
     $(".pic_info").submit(function (e) {
         e.preventDefault()
-
         //上传头像
         // ajaxSubmit 代表使用 jquery 的代码去模拟点击提交按钮的操作
         $(this).ajaxSubmit({
