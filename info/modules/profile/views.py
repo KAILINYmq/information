@@ -7,6 +7,44 @@ from info.untils.image_storage import storage
 from info.untils.response_code import RET
 
 
+@profile_blu.route('/news_list')
+@user_login_data
+def user_news_list():
+    """新闻发布审核列表"""
+    # 1.获取参数
+    page = request.args.get("p", 1)
+    # 2.参数判断
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    user = g.user
+    news_list = []
+    current_page = 1
+    total_page =1
+    try:
+        paginate = News.query.filter(News.user_id == user.id).paginate(page, constants.USER_COLLECTION_MAX_NEWS, False)
+        news_list = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    news_dict_li = []
+    for news in news_list:
+        news_dict_li.append(news.to_basic_dict())
+
+    data = {
+        "news_list": news_dict_li,
+        "total_page": total_page,
+        "current_page": current_page
+    }
+
+    return render_template('news/user_news_list.html', data=data)
+
+
 @profile_blu.route('/news_release', methods=["GET", "POST"])
 @user_login_data
 def news_release():
