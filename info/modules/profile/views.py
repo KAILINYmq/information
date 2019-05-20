@@ -3,6 +3,15 @@ from info.modules.profile import profile_blu
 from info.untils.common import user_login_data
 from info.untils.response_code import RET
 
+@profile_blu.route('/pic_info', methods=["GET","POST"])
+@user_login_data
+def pic_info():
+    """用户头像上传"""
+    if request.method == "GET":
+        user = g.user
+        return render_template('news/user_pic_info.html', data={"user": user.to_dict()})
+
+
 
 @profile_blu.route('/base_info', methods=["GET","POST"])
 @user_login_data
