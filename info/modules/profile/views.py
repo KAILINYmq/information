@@ -34,7 +34,7 @@ def user_news_list():
 
     news_dict_li = []
     for news in news_list:
-        news_dict_li.append(news.to_basic_dict())
+        news_dict_li.append(news.to_review_dict())
 
     data = {
         "news_list": news_dict_li,
@@ -87,7 +87,7 @@ def news_release():
         key = storage(index_image_data)
     except Exception as e:
         current_app.logger.error(e)
-        return  jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
 
     news = News()
     news.title = title

@@ -1,6 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
@@ -47,6 +47,11 @@ def create_app(config_name):
 
     from info.untils.common import do_index_class
     app.add_template_filter(do_index_class, "indexClass")  # 添加自定义过滤器
+
+    # 404界面
+    @app.errorhandler(404)
+    def page_not_fount(e):
+        return render_template('news/404.html')
 
     # 请求钩子
     @app.after_request
