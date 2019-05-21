@@ -6,13 +6,20 @@ from info.modules.admin import admin_blu
 @admin_blu.route('/index', methods=["GET","POST"])
 def index():
     """后台主页"""
+
     return render_template('admin/index.html')
 
 
 @admin_blu.route('/login', methods=["GET","POST"])
 def login():
     """后台登陆"""
-    if request.method =="GET":
+    if request.method == "GET":
+        # 判断当前用户是否登陆 如果登陆直接重定向到管理员界面
+        user_id = session.get("user_id", None)
+        is_admin = session.get("user_id", False)
+        if user_id and is_admin:
+            return redirect(url_for('admin.index'))
+
         return render_template('admin/login.html')
 
     # 否则就是登陆
