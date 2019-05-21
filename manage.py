@@ -4,7 +4,7 @@ from flask_migrate import Migrate, MigrateCommand
 from info import create_app, db, models
 from info.models import User
 
-"""项目入口文件(存放和启动有关的配置,不关心具体该如何创建app或者相关逻辑)"""
+# 项目入口文件(存放和启动有关的配置,不关心具体该如何创建app或者相关逻辑)
 # 通过指定的配置名字创建对应配置的app
 # create_app方法类似于工厂方法
 app = create_app('development')
