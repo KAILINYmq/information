@@ -10,7 +10,8 @@ from info.untils.common import user_login_data
 def review():
     """新闻审核"""
     # 取出参数
-    page = request.args.get("p",1)
+    page = request.args.get("p", 1)
+    keywords = request.args.get("keywords", None)
     try:
         page = int(page)
     except Exception as e:
@@ -20,8 +21,13 @@ def review():
     news_list = []
     current_page = 1
     total_page = 1
+    # TODO 有疑问
+    filters = [News.status != 0]
+    # 如果关键字存在就添加关键字搜索
+    if keywords:
+        filters.append(News.title.contains(keywords))
     try:
-        paginate = News.query.filter(News.status !=0)\
+        paginate = News.query.filter(*filters)\
             .order_by(News.create_time.desc())\
             .paginate(page, constants.ADMIN_NEWS_PAGE_MAX_COUNT, False)
 
