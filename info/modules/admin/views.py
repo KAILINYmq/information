@@ -1,9 +1,47 @@
 import time
 from datetime import datetime
 from flask import request, render_template, current_app, session, redirect, url_for, g
-from info.models import User
+from info import constants
+from info.models import User, News
 from info.modules.admin import admin_blu
 from info.untils.common import user_login_data
+
+@admin_blu.route('/news_review')
+def review():
+    """新闻审核"""
+    # 取出参数
+    page = request.args.get("p",1)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    news_list = []
+    current_page = 1
+    total_page = 1
+    try:
+        paginate = News.query.filter(News.status !=0)\
+            .order_by(News.create_time.desc())\
+            .paginate(page, constants.ADMIN_NEWS_PAGE_MAX_COUNT, False)
+
+        news_list =paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    news_divt_list = []
+    for news in news_list:
+        news_divt_list.append(news.to_review_dict())
+
+    context = {"total_page": total_page,
+               "current_page": current_page,
+               "news_list": news_divt_list
+    }
+
+    return render_template('admin/news_review.html', data=context)
+
 
 @admin_blu.route('/user_count')
 def user_count():
@@ -37,6 +75,8 @@ def user_count():
         "mon_count": mon_count,
         "day_count": day_count,
     }
+
+    # TODO 折线图数据统计
 
     return render_template('admin/user_count.html', data = data)
 
@@ -79,8 +119,7 @@ def login():
     if not user:
         return render_template('admin/login.html', errmsg="为查询到用户信息")
     # 校验密码
-    # TODO 所有登陆存在BUG
-    if user.check_password(password):
+    if not user.check_password(password):
         return render_template('admin/login.html', errmsg="用户名或密码错误")
 
     # 保存用户信息到session

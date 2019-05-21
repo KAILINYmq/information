@@ -33,7 +33,7 @@ def login():
         return jsonify(errno=RET.PARAMERR, errmsg="参数错误！")
     # 校验手机号
     if not re.match('1[]35678]\\d{9}', mobile):
-        return jsonify(errno=RET.PARAMERR, errmsg="手机格式正确")
+        return jsonify(errno=RET.PARAMERR, errmsg="手机格式不正确")
 
     #  3.校验密码是否正确
     # 判断是否有手机号
@@ -47,7 +47,7 @@ def login():
         return jsonify(errno=RET.NODATA, errmsg="用户不存在！")
 
     # 校验当前密码手否一致
-    if user.check_password(passport):
+    if not user.check_password(passport):
         return jsonify(errno=RET.PWDERR, errmsg="用户名或密码错误！")
 
     #  4.保存用户状态

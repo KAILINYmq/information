@@ -22,7 +22,7 @@ manager.add_command('db', MigrateCommand)
 def createsuperuser(name, password):
    if not all([name, password]):
        print("参数不足")
-       return
+       return None
 
    user = User()
    user.nick_name = name
