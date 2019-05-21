@@ -5,7 +5,6 @@ admin_blu = Blueprint("admin", __name__)
 
 from . import views
 
-xi
 # @admin_blu.before_request 表示只在 @admin_blu 的函数里执行
 @admin_blu.before_request
 def check_admin():
