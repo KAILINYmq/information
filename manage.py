@@ -1,3 +1,4 @@
+# encoding:utf-8
 from flask import session, current_app
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
