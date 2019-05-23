@@ -68,6 +68,41 @@ def review():
     return render_template('admin/news_review.html', data=context)
 
 
+@admin_blu.route('/user_list')
+def user_list():
+    """后端用户列表显示"""
+    page = request.args.get("page", 1)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    users_list = []
+    current_page = 1
+    total_page = 1
+    # paginate(p, constants.ADMIN_USER_PAGE_MAX_COUNT) 传入当前第几页 和 渲染多少条数据
+    try:
+        paginate = User.query.filter(User.is_admin == False).paginate(page, constants.ADMIN_USER_PAGE_MAX_COUNT)
+        users_list = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    users_dict_li = []
+    for user in users_list:
+        users_dict_li.append(user.to_admin_dict())
+
+    data = {
+        "users_dict_li": users_dict_li,
+        "current_page": current_page,
+        "total_page": total_page
+    }
+
+    return render_template('admin/user_list.html', data=data)
+
+
 @admin_blu.route('/user_count')
 def user_count():
     """后台页面数据显示"""
