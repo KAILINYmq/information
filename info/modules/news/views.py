@@ -227,10 +227,19 @@ def news_detail(news_id):
              comment_dict["is_like"] = True
          comment_dict_li.append(comment_dict)
 
+     # 新闻详情页用户关注
+     is_followed = False
+     # if 当前新闻有作者 并且 当前登陆用户已关注过这个用户
+     if news.user and user:
+         # if user 是否关注过 news.user
+         if news.user in user.followers:
+             is_followed = True
+
      data={
          "user": user.to_dict() if user else None,  # 如果user有值执行user.to_dcit() 否则为None
          "news_dict_li": news_dict_li,              # 获取主页新闻数据
          "news": news.to_dict(),                    # 新闻详情页数据
+         "is_followed": is_followed,                # 判断用户是否关注
          "is_collected": is_collected,              # 判断用户是否收藏
          "comments": comment_dict_li                # 新闻评论返回
      }
