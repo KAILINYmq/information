@@ -1,12 +1,63 @@
 import time
 from datetime import datetime, timedelta
-from flask import request, render_template, current_app, session, redirect, url_for, g
+from flask import request, render_template, current_app, session, redirect, url_for, g, abort
 from flask.json import jsonify
 from info import constants
-from info.models import User, News
+from info.models import User, News, Category
 from info.modules.admin import admin_blu
 from info.untils.common import user_login_data
 from info.untils.response_code import RET
+
+
+@admin_blu.route('/news_edit_detail')
+def news_edit_detail():
+     """新闻版式编辑功能实现"""
+     # 1. 获取参数
+     news_id = request.args.get("news_id")
+     if not news_id:
+         abort(404)
+
+     try:
+         news_id = int(news_id)
+     except Exception as e:
+         current_app.logger.error(e)
+         return render_template('admin/news_edit_detail.html', errmsg="参数错误")
+
+     try:
+         news = News.query.get(news_id)
+     except Exception as e:
+         current_app.logger.error(e)
+         return render_template('admin/news_edit_detail.html', errmsg="查询数据错误")
+
+     if not news:
+         return render_template('admin/news_edit_detail.html', errmsg="为查询到数据")
+
+     # 查询分类数据
+     categories = []
+     try:
+         categories = Category.query.all()
+     except Exception as e:
+         current_app.logger.error(e)
+         return render_template('admin/news_edit_detail.html', errmsg="查询数据错误")
+
+     categories_dict_li = []
+     for category in categories:
+         # TODO 有疑问 取到分类的字典
+         cate_dict = category.to_dict()
+         # 判断当前遍历的分类是否是当前新闻分类，如果是，添加is_selected为True
+         if category.id == news.category_id:
+             cate_dict["is_selected"] = True
+         categories_dict_li.append(category.to_dict())
+
+     # 移除最新的分类
+     categories_dict_li.pop(0)
+     data = {
+         "news": news.to_dict(),
+         "categories":  categories_dict_li
+     }
+
+     return render_template('admin/news_edit_detail.html', data=data)
+
 
 @admin_blu.route('/news_edit')
 def news_edit():
