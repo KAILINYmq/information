@@ -10,6 +10,7 @@ $(function(){
         // 新闻审核提交
         var params = {};
         // 获取到所有的参数
+        // serializeArray().map 取到当前表中需要提交数据
         $(this).serializeArray().map(function (x) {
             params[x.name] = x.value;
         });
@@ -37,6 +38,7 @@ $(function(){
             success: function (resp) {
                 if (resp.errno == "0") {
                     // 返回上一页，刷新数据
+                    // location.href  网页跳转哪个界面
                     location.href = document.referrer;
                 }else {
                     alert(resp.errmsg);
