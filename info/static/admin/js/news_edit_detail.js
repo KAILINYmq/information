@@ -8,6 +8,7 @@ $(function(){
         e.preventDefault()
         // 新闻编辑提交
         $(this).ajaxSubmit({
+            // beforeSubmit 取到父文本编辑器里的编辑内容
             beforeSubmit: function (request) {
                 // 在提交之前，对参数进行处理
                 for(var i=0; i<request.length; i++) {

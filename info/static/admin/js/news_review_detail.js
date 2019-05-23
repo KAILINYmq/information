@@ -6,7 +6,6 @@ function getCookie(name) {
 $(function(){
     $(".news_review").submit(function (e) {
         e.preventDefault()
-
         // 新闻审核提交
         var params = {};
         // 获取到所有的参数

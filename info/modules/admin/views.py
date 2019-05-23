@@ -6,57 +6,102 @@ from info import constants
 from info.models import User, News, Category
 from info.modules.admin import admin_blu
 from info.untils.common import user_login_data
+from info.untils.image_storage import storage
 from info.untils.response_code import RET
 
 
-@admin_blu.route('/news_edit_detail')
+@admin_blu.route('/news_edit_detail', methods=["GET", "POST"])
 def news_edit_detail():
      """新闻版式编辑功能实现"""
-     # 1. 获取参数
-     news_id = request.args.get("news_id")
-     if not news_id:
-         abort(404)
+     if request.method == "GET":
+         # 1. 获取参数
+         news_id = request.args.get("news_id")
+         if not news_id:
+             abort(404)
 
-     try:
-         news_id = int(news_id)
-     except Exception as e:
-         current_app.logger.error(e)
-         return render_template('admin/news_edit_detail.html', errmsg="参数错误")
+         try:
+             news_id = int(news_id)
+         except Exception as e:
+             current_app.logger.error(e)
+             return render_template('admin/news_edit_detail.html', errmsg="参数错误")
 
+         try:
+             news = News.query.get(news_id)
+         except Exception as e:
+             current_app.logger.error(e)
+             return render_template('admin/news_edit_detail.html', errmsg="查询数据错误")
+
+         if not news:
+             return render_template('admin/news_edit_detail.html', errmsg="为查询到数据")
+
+         # 查询分类数据
+         categories = []
+         try:
+             categories = Category.query.all()
+         except Exception as e:
+             current_app.logger.error(e)
+             return render_template('admin/news_edit_detail.html', errmsg="查询数据错误")
+
+         categories_dict_li = []
+         for category in categories:
+             # TODO 有疑问 取到分类的字典
+             cate_dict = category.to_dict()
+             # 判断当前遍历的分类是否是当前新闻分类，如果是，添加is_selected为True
+             if category.id == news.category_id:
+                 cate_dict["is_selected"] = True
+             categories_dict_li.append(category.to_dict())
+
+         # 移除最新的分类
+         categories_dict_li.pop(0)
+         data = {
+             "news": news.to_dict(),
+             "categories":  categories_dict_li
+         }
+         return render_template('admin/news_edit_detail.html', data=data)
+
+     # 取到POST传入的数据
+     news_id = request.form.get("news_id")
+     title = request.form.get("title")
+     digest = request.form.get('digest')
+     content = request.form.get('content')
+     index_image = request.files.get('index_image')
+     category_id = request.form.get('category_id')
+     # 1.1判断数据是否有值
+     if not all([title, digest, content, category_id]):
+         return jsonify(errno=RET.PARAMERR, errmsg="参数有误")
+
+     # 查询指定id
      try:
          news = News.query.get(news_id)
      except Exception as e:
          current_app.logger.error(e)
-         return render_template('admin/news_edit_detail.html', errmsg="查询数据错误")
-
+         return jsonify(errnp=RET.DBERR, errmsg="数据查询失败")
      if not news:
-         return render_template('admin/news_edit_detail.html', errmsg="为查询到数据")
+         return jsonify(errno=RET.NODATA, errmsg="为查询到指定数据")
 
-     # 查询分类数据
-     categories = []
-     try:
-         categories = Category.query.all()
-     except Exception as e:
-         current_app.logger.error(e)
-         return render_template('admin/news_edit_detail.html', errmsg="查询数据错误")
+     # 1.2 如果有图片尝试读取图片
+     if index_image:
+         try:
+             index_image = index_image.read()
+         except Exception as e:
+             current_app.logger.error(e)
+             return jsonify(errno=RET.PARAMERR, errmsg="参数有误")
 
-     categories_dict_li = []
-     for category in categories:
-         # TODO 有疑问 取到分类的字典
-         cate_dict = category.to_dict()
-         # 判断当前遍历的分类是否是当前新闻分类，如果是，添加is_selected为True
-         if category.id == news.category_id:
-             cate_dict["is_selected"] = True
-         categories_dict_li.append(category.to_dict())
+         #  2.将标题图片上传到七牛
+         try:
+             key = storage(index_image)
+         except Exception as e:
+             current_app.logger.error(e)
+             return jsonify(errno=RET.THIRDERR, errmsg="上传图片错误")
+         news.index_image_url = constants.QINIU_DOMIN_PREFIX + key
 
-     # 移除最新的分类
-     categories_dict_li.pop(0)
-     data = {
-         "news": news.to_dict(),
-         "categories":  categories_dict_li
-     }
+     # 3. 设置相关数据
+     news.title = title
+     news.digest = digest
+     news.content = content
+     news.category_id = category_id
 
-     return render_template('admin/news_edit_detail.html', data=data)
+     return jsonify(errno=RET.OK, errmsg="OK")
 
 
 @admin_blu.route('/news_edit')
