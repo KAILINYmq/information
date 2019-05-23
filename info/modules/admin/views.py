@@ -2,12 +2,65 @@ import time
 from datetime import datetime, timedelta
 from flask import request, render_template, current_app, session, redirect, url_for, g, abort
 from flask.json import jsonify
-from info import constants
+from info import constants, db
 from info.models import User, News, Category
 from info.modules.admin import admin_blu
 from info.untils.common import user_login_data
 from info.untils.image_storage import storage
 from info.untils.response_code import RET
+
+
+@admin_blu.route('/news_type', methods=["GET", "POST"])
+def news_type():
+    """后台新闻分类数据"""
+    if request.method == "GET":
+        # 查询分类数据
+        try:
+            categories = Category.query.all()
+        except Exception as e:
+            current_app.logger.error(e)
+            return render_template('admin/news_type.html', errmsg="查询数据错误")
+
+        categories_dict_li = []
+        for category in categories:
+            categories_dict_li.append(category.to_dict())
+
+        # 移除最新的分类
+        categories_dict_li.pop(0)
+        data = {
+            "categories": categories_dict_li
+        }
+
+        return render_template('admin/news_type.html', data=data)
+
+    # 新增或者添加分类
+    # 1.获取参数
+    cname = request.json.get("name")
+    # 如果传入了cid， 代表是编辑已存在的分类
+    cid = request.json.get("id")
+    # 2.校验参数
+    if not cname:
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    if cid:
+        # 如果传入了cid， 代表是编辑已存在的分类
+        try:
+            cid = int(cid)
+            category = Category.query.get(cid)
+        except Exception as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+        if not category:
+            return jsonify(errno=RET.NODATA, errmsg="为查询到分类数据")
+        category.name = cname
+    else:
+        # 如果没有cid， 代表是新建分类
+        category = Category()
+        category.name = cname
+        db.session.add(category)
+
+    return jsonify(errno=RET.OK, errmsg="OK")
 
 
 @admin_blu.route('/news_edit_detail', methods=["GET", "POST"])
@@ -35,7 +88,6 @@ def news_edit_detail():
              return render_template('admin/news_edit_detail.html', errmsg="为查询到数据")
 
          # 查询分类数据
-         categories = []
          try:
              categories = Category.query.all()
          except Exception as e:

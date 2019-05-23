@@ -39,7 +39,6 @@ $(function(){
     });
 
     $confirm.click(function(){
-
         var params = {}
         if(sHandler=='edit')
         {
