@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import request, render_template, current_app, session, redirect, url_for, g
 from info import constants
 from info.models import User, News
@@ -95,13 +95,29 @@ def user_count():
     except Exception as e:
         current_app.logger.error(e)
 
+    # 折线图数据统计
+    active_time = []
+    active_count = []
+    begin_today_date = datetime.strptime(('%d-%02d-%02d' % (t.tm_year, t.tm_mon, t.tm_mday)), "%Y-%m-%d")  # 将时间字符串转化为对象
+    for i in range(0, 31):
+        begin_date = begin_today_date - timedelta(days=i)     # 取到今天0点
+        end_date = begin_today_date - timedelta(days=(i - 1))  # 取到后一天24点
+        count = User.query.filter(User.is_admin == False, User.last_login >= begin_date, User.last_login < end_date).count()
+        # 活跃人数
+        active_count.append(count)
+        # 活跃时间
+        active_time.append(begin_date.strftime('%Y-%m-%d'))
+    # 使数据反转
+    active_time.reverse()
+    active_count.reverse()
+
     data = {
         "total_count": total_count,
         "mon_count": mon_count,
         "day_count": day_count,
+        "active_time": active_time,
+        "active_count": active_count
     }
-
-    # TODO 折线图数据统计
 
     return render_template('admin/user_count.html', data = data)
 
