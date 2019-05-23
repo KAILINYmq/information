@@ -1,10 +1,57 @@
 from flask.json import jsonify
 from info import constants, db
-from info.models import News, Comment, CommentLike
+from info.models import News, Comment, CommentLike, User
 from info.modules.news import news_blu
 from flask import render_template, current_app, session, g, abort, request
 from info.untils.common import user_login_data
 from info.untils.response_code import RET
+
+@news_blu.route('/followed_user', methods=["POST"])
+@user_login_data
+def folled_user():
+    """关注用户或者取消用户"""
+    # 1.取到自己的登陆信息
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg="未登录")
+
+    # 2.获取参数
+    user_id = request.json.get("user_id")
+    action = request.json.get("action")
+    # 3.校验参数
+    if not all([user_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+    if action not in("follow", "unfollow"):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+    # 4.取到要被关注的用户
+    try:
+        other = User.query.get(user_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询错误")
+
+    if not other:
+        return jsonify(errno=RET.NODATA, errmsg="未查询到数据")
+    # 4.根据要执行的操作去修改对应数据
+    if action == "follow":
+        # TODO 添加关注
+        if other == user.id:
+            return jsonify(errno=RET.DATAEXIST, errmsg="不能关注自己")
+        elif other not in user.followed:
+            # 当前用户的关注列表添加一个值
+            # user.followeds.append(user) 或者 user.followed.append(other) 都行
+            user.followed.append(other)
+        else:
+            return jsonify(errno=RET.DATAEXIST, errmsg="当前用户已被关注")
+    else:
+        # 取消关注
+        if other in user.followed:
+            # 当前用户的关注列表删除一个值
+            user.followed.remove(other)
+        else:
+            return jsonify(errno=RET.DATAEXIST, errmsg="当前用户未被关注")
+
+    return jsonify(errno=RET.OK, errmsg="操作成功")
 
 
 @news_blu.route('/comment_like', methods=["POST"])
@@ -232,7 +279,7 @@ def news_detail(news_id):
      # if 当前新闻有作者 并且 当前登陆用户已关注过这个用户
      if news.user and user:
          # if user 是否关注过 news.user
-         if news.user in user.followers:
+         if news.user in user.followed:
              is_followed = True
 
      data={

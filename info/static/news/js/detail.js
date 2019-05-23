@@ -282,7 +282,7 @@ $(function(){
         }
     })
 
-        // 关注当前新闻作者
+    // 关注当前新闻作者
     $(".focus").click(function () {
         var user_id = $(this).attr('data-userid')
         var params = {
