@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>新经资讯后台管理</title>
+	<title>YBook后台管理</title>
 	<link rel="stylesheet" type="text/css" href="../../static/admin/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="../../static/admin/css/main.css">
 	<script type="text/javascript" src="../../static/admin/js/jquery-1.12.4.min.js"></script>
@@ -15,7 +15,11 @@
 	
 	<div class="side_bar">
 		<div class="user_info">
-			<img src="../../static/admin/images/person.png" alt="张大山">
+			<img src="{% if data.avatar_url %}
+			{{ data.avatar_url }}
+			{% else %}
+			../../static/admin/images/person.png
+            {% endif %}" alt="image">
 			<p>欢迎你 <em>{{ data.nick_name }}</em></p>
 		</div>
 
