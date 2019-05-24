@@ -6,6 +6,7 @@ from flask import render_template, current_app, session, g, abort, request
 from info.untils.common import user_login_data
 from info.untils.response_code import RET
 
+
 @news_blu.route('/followed_user', methods=["POST"])
 @user_login_data
 def folled_user():
