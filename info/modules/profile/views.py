@@ -6,6 +6,24 @@ from info.untils.common import user_login_data
 from info.untils.image_storage import storage
 from info.untils.response_code import RET
 
+
+
+
+@profile_blu.route('/other_info')
+@user_login_data
+def other_info():
+    """个人关注详情页跳转"""
+    user = g.user
+
+    data = {
+        "user": user.to_dict() if g.user else None
+    }
+
+    return render_template('news/other.html', data=data)
+
+
+
+
 @profile_blu.route('/user_follow')
 @user_login_data
 def user_follow():
